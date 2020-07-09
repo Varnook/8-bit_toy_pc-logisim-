@@ -33,10 +33,10 @@ ALU_op = {
         "ADD" : 1,
         "SUB" : 2,
         "INC" : 3,
-        "DEC" : 4,
-        "SHR" : 5,
-        "SHL" : 6,
-        "OR"  : 7,
+        "DEC" : 4,          # Todo el programa se basa en traducir
+        "SHR" : 5,          # texto a números que están directamente
+        "SHL" : 6,          # en el procesador en la forma de salidas
+        "OR"  : 7,          # de la unidad de control.
         "XOR" : 8,
         "AND" : 9,
         
@@ -49,11 +49,11 @@ ALU_op = {
 def crearROM(texto):
     resultado = "" 
 
-    sinComentarios  = borrarComentarios('0:\n'+texto )
-    direccSeparadas = separarDirecc(sinComentarios   )
-    lineasSeparadas = separarLineas(direccSeparadas  )
-    memoriaEnLista  = poblarListaCero(lineasSeparadas)
-
+    sinComentarios  = borrarComentarios('0:\n'+texto ) # Se borran comentarios, espacios y tabs. El '0:\n' se explica en separarDirecc.
+    direccSeparadas = separarDirecc(sinComentarios   ) # Se separan las posiciones de la ROM del código y se crea una lista de strings.
+    lineasSeparadas = separarLineas(direccSeparadas  ) # Se separa cada enter y ahora la lista de strings tiene [dir, renglon1, renglon2...] .
+    memoriaEnLista  = poblarListaCero(lineasSeparadas) # Se genera una lista de 256 posiciones iguales con el string '00000000'.
+                                                       # y luego se puebla con los strings de los renglones traducidos.
     i = 1
     while i <= 256:
         if not i % 8:
@@ -81,12 +81,12 @@ def borrarComentarios(texto):
 
     return resultado
 
-
-def separarDirecc(texto):
-    resultado = []
-    tamT = len(texto)
-    iter_texto = 0
-
+                                    # La idea acá es buscar ':' que separa a las posiciones de memoria de las instrucciones.
+def separarDirecc(texto):           # Una vez que se encuentra se va para atrás hasta el último '\n' (enter) y se separa ese
+    resultado = []                  # pedazo de string de el resto. Ese resto se determina encontrando, delante de ':' hasta
+    tamT = len(texto)               # encontrar los próximos ':' y de ahí retroceder un poco hasta el '\n'.
+    iter_texto = 0                  # La función ignora todo el texto hasta encontrar los primeros ':', por eso se agregan en
+                                    # borrarComentarios. La alternativa eran muchas lineas de código más.
     while iter_texto < tamT:
         
         if texto[iter_texto] == ':':
@@ -127,16 +127,20 @@ def separarLineas(lista_texto):
 
 def poblarListaCero(lista_texto):
     listaCero = ['00000000' for i in range(256)]
-    pos_lista = 0
-
-    for i in lista_texto:
-        if i[0] in '01':
+    pos_lista = 0                                   # Se arma la lista cero y se la sobrescribe con
+                                                    # Las instrucciones traducidas y ubicadas en
+    for i in lista_texto:                           # las posiciones de memoria separadas en separarDirecc
+        if i[0] in '01':                            # y calculadas en obtenerPosROM
             pos_lista = obtenerPosROM(i)
         elif [j for j in list(controles.keys())+list(ALU_op.keys()) if j in i]:
             listaCero[pos_lista] = instAHexa(i)
             pos_lista += 1
     return listaCero
 
+
+# Se alargan los números binarios de las etiquetas para 
+# llegar a 8 bits y se tiene en cuenta que las etiquetas
+# marcan la posición por los bits más significativos
 
 def obtenerPosROM(bin_corto_texto):
     while len(bin_corto_texto) < 8:
@@ -153,9 +157,9 @@ def instAHexa(linea):
     numerosInst = [valor for clave,valor in instrucciones.items() if clave in linea]
 
     instABin = 0
-    for i in numerosInst: instABin += i
-
-    hexa_crudo = hex(instABin)[2:]
+    for i in numerosInst: instABin += i    # Tomando el número de las palabras clave (ver los diccionarios),
+                                           # se hace el shift de bits correspondiente y después se suma el
+    hexa_crudo = hex(instABin)[2:]         # resultado dentro de un mismo renglón
 
     resultado = hexa_crudo
     while len(resultado) < 8:
