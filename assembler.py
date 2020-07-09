@@ -8,9 +8,9 @@ instrucciones = {
         "SHR"  :  8,
         "SHL"  : 10,
         "OR"   : 12,
-        "XOR"  : 14,
-        "AND"  : 16,
-        "CMP"  : 18,
+        "XOR"  : 14,      # Misma idea que en microcoder. Ahora cada instrucción
+        "AND"  : 16,      # tiene un valor que se mueve 3 bits a la izquierda y
+        "CMP"  : 18,      # se traduce a hexa.
         "MOV"  : 20,
         "SETM" : 22,
         "SETR" : 23,
@@ -31,10 +31,10 @@ formatoDinamico = [clave for clave,valor in instrucciones.items() if valor < 21]
 def crearPrograma(texto):
     resultado = ""
 
-    sinComentarios = borrarComentarios(texto)
-    lineasSeparadas = separarLineas(sinComentarios)
-    etiquetasTraducidas = traducirEtiquetas(lineasSeparadas)
-    instruccionesTraducidas = traducirInstrucciones(etiquetasTraducidas)
+    sinComentarios = borrarComentarios(texto)          # Igual a la de microcoder pero ahora no es necesario modificar el string original.
+    lineasSeparadas = separarLineas(sinComentarios)           # Usando regex se separa por linea y etiqueta.
+    etiquetasTraducidas = traducirEtiquetas(lineasSeparadas)         # Se pasan las etiquetas a valores en hexa.
+    instruccionesTraducidas = traducirInstrucciones(etiquetasTraducidas)    # Se traducen instrucciones y números de registros.
     
     for i in instruccionesTraducidas:
         resultado += i + '\n'
@@ -61,10 +61,10 @@ def separarLineas(texto):
     return [i for i in re.split(':|\n', texto) if i]
 
 def traducirEtiquetas(lineas_texto):
-    etiquetas = encontrarEtiquetas(lineas_texto)
-    resultado = []
-
-    for linea in lineas_texto:
+    etiquetas = encontrarEtiquetas(lineas_texto)        # Se genera un diccionario con los valores de cada etiqueta. Esos valores
+    resultado = []                                      # se obtienen con una función auxiliar. Después se reemplazan los strings
+                                                        # de las etiquetas por estos valores y, siempre que la instrucción no sea
+    for linea in lineas_texto:                          # seguida por un registro, se agrega al final de la instrucción: una ','.
         
         instr = [clave for clave in instrucciones.keys() if clave in linea]
         etiqueta = [clave for clave in etiquetas.keys() if clave in linea]
@@ -94,10 +94,10 @@ def traducirEtiquetas(lineas_texto):
     return resultado;
 
 def encontrarEtiquetas(lineas_texto):
-    nro_inst  = 0
-    etiquetas = {}
-
-    for i in range(len(lineas_texto)):
+    nro_inst  = 0                             # Se buscan las posiciones de memoria de las etiquetas marcadas
+    etiquetas = {}                            # con ':'. Además el programa tiene la capacidad de asignar una
+                                              # posición definida manualmente si después de los ':' hay algún
+    for i in range(len(lineas_texto)):        # número (en hexa).
         linea = lineas_texto[i]
         
         if [clave for clave in instrucciones.keys() if clave in linea]:
@@ -119,11 +119,11 @@ def encontrarEtiquetas(lineas_texto):
     return etiquetas;
 
 def traducirInstrucciones(lineas_texto):
-   
-    resultado = []
-    for i in lineas_texto:
-       resultado += i.split(",")
-
+                                                        # Esta función reemplaza cada palabra clave por su valor según
+    resultado = []                                      # el diccionario. Para las instrucciones que tienen un formato
+    for i in lineas_texto:                              # variable, se asigna el código de operación sin necesitar que
+       resultado += i.split(",")                        # se indique en assembler el formato a usar, como se indica en
+                                                        # la rama true del segundo if con "R" not in resultado[i + 1].
     for i in range(len(resultado)):
         clave = [clave for clave in instrucciones.keys() if clave in resultado[i]]
 
