@@ -1,0 +1,194 @@
+PC_enOut mem_setAddr
+PC_inc deco_load1 mem_enOut
+PC_enOut mem_setAddr
+PC_inc deco_load2 mem_enOut
+deco_enOpC CU_load
+CU_reset
+
+00010: ; ADD Reg_x Reg_y
+	deco_enInxX reg_enOut   en_A
+	deco_enInxY reg_enOut   en_B
+	ALU_op=ADD  w_flag
+	ALU_enOut   deco_enInxX reg_enIn
+	CU_reset
+
+00011: ; ADD Reg_x num
+	deco_enInxX reg_enOut   en_A
+	deco_enNum  en_B
+	ALU_op=ADD  w_flag
+	ALU_enOut   deco_enInxX reg_enIn
+	CU_reset
+
+00100: ; SUB Reg_x Reg_y
+	deco_enInxX reg_enOut   en_A
+	deco_enInxY reg_enOut   en_B
+	ALU_op=SUB  w_flag
+	ALU_enOut   deco_enInxX reg_enIn
+	CU_reset
+
+00101: ; SUB Reg_x num
+	deco_enInxX reg_enOut   en_A
+	deco_enNum  en_B
+	ALU_op=SUB  w_flag
+	ALU_enOut   deco_enInxX reg_enIn
+	CU_reset
+
+00110: ; NEG Reg_x
+	deco_enInxX reg_enOut   en_A
+	ALU_op=NEG
+	ALU_enOut   deco_enInxX reg_enIn
+	CU_reset
+
+00111: ; NEG Reg_x num
+	deco_enInxX reg_enOut   en_A
+	deco_enNum  en_B
+	ALU_op=NEG
+	ALU_enOut   deco_enInxX reg_enIn
+	CU_reset
+
+01000: ; SHR Reg_x Reg_y
+	deco_enInxX reg_enOut   en_A
+	deco_enInxY reg_enOut   en_B
+	ALU_op=SHR
+	ALU_enOut   deco_enInxX reg_enIn
+	CU_reset
+
+01001: ; SHR Reg_x num
+	deco_enInxX reg_enOut   en_A
+	deco_enNum  en_B
+	ALU_op=SHR    
+	ALU_enOut   deco_enInxX reg_enIn
+	CU_reset
+
+01010: ; SHL Reg_x Reg_y
+	deco_enInxX reg_enOut   en_A
+	deco_enInxY reg_enOut   en_B
+	ALU_op=SHL
+	ALU_enOut   deco_enInxX reg_enIn
+	CU_reset
+
+01011: ; SHL Reg_x num
+	deco_enInxX reg_enOut   en_A
+	deco_enNum  en_B
+	ALU_op=SHL    
+	ALU_enOut   deco_enInxX reg_enIn
+	CU_reset
+
+01100: ; OR Reg_x Reg_y
+	deco_enInxX reg_enOut   en_A
+	deco_enInxY reg_enOut   en_B
+	ALU_op=OR   w_flag
+	ALU_enOut   deco_enInxX reg_enIn
+	CU_reset
+
+01101: ; OR Reg_x num
+	deco_enInxX reg_enOut   en_A
+	deco_enNum  en_B
+	ALU_op=OR   w_flag
+	ALU_enOut   deco_enInxX reg_enIn
+	CU_reset
+
+01110: ; XOR Reg_x Reg_y
+	deco_enInxX reg_enOut   en_A
+	deco_enInxY reg_enOut   en_B
+	ALU_op=XOR  w_flag
+	ALU_enOut   deco_enInxX reg_enIn
+	CU_reset
+
+01111: ; XOR Reg_x num
+	deco_enInxX reg_enOut   en_A
+	deco_enNum  en_B
+	ALU_op=XOR  w_flag
+	ALU_enOut   deco_enInxX reg_enIn
+	CU_reset
+
+10000: ; AND Reg_x Reg_y
+	deco_enInxX reg_enOut   en_A
+	deco_enInxY reg_enOut   en_B
+	ALU_op=AND  w_flag
+	ALU_enOut   deco_enInxX reg_enIn
+	CU_reset
+
+10001: ; AND Reg_x num
+	deco_enInxX reg_enOut   en_A
+	deco_enNum  en_B
+	ALU_op=AND  w_flag
+	ALU_enOut   deco_enInxX reg_enIn
+	CU_reset
+
+10010: ; CMP Reg_x Reg_y
+	deco_enInxX reg_enOut en_A
+	deco_enInxY reg_enOut en_B
+	ALU_op=SUB  w_flag
+	CU_reset
+
+10011: ; CMP Reg_x num
+	deco_enInxX reg_enOut en_A
+	deco_enNum  en_B
+	ALU_op=SUB  w_flag
+	CU_reset
+
+10100: ; MOV Reg_x -> Reg_y
+	deco_enInxX  reg_enOut  en_A
+	ALU_op=cte00 ALU_enOut  en_B
+	deco_enInxY  ALU_op=ADD ALU_enOut reg_enIn
+	CU_reset
+
+10101: ; MOV Reg_x num
+	deco_enNum deco_enInxX reg_enIn
+	CU_reset
+
+10110: ; SETM Reg_x -> addr
+	deco_enNum  mem_setAddr
+	deco_enInxX reg_enOut   mem_enIn
+	CU_reset
+
+10111: ; SETR Reg_x <- addr
+	deco_enNum  mem_setAddr
+	deco_enInxX mem_enOut   reg_enIn
+	CU_reset
+
+
+11000: ; JC
+	CU_reset
+	deco_enNum PC_load
+	CU_reset
+
+11001: ; JZ
+	CU_reset
+	deco_enNum PC_load
+	CU_reset
+
+11010: ; JN
+	CU_reset
+	deco_enNum PC_load
+	CU_reset
+
+11011: ; JMP
+	deco_enNum PC_load
+	CU_reset
+
+11100: ; CALL addr
+	PC_setStack
+	PC_stackInc
+	deco_enNum   PC_load
+	CU_reset
+
+11101: ; RET 
+	PC_stackDec
+	PC_loadFromStack
+	CU_reset
+
+11110: ; DISP addr    addr = low, (addr + 1) = high, (addr + 2) = col
+	deco_enNum mem_setAddr  en_A
+	mem_enOut  mon_setLeast ALU_op=INC 
+	ALU_enOut  mem_setAddr  en_A
+	mem_enOut  mon_setMost  ALU_op=INC 
+	ALU_enOut  mem_setAddr
+	mem_enOut  mon_enIn
+	CU_reset
+
+11111: ; JOY addr
+	deco_enNum mem_setAddr
+	joy_enOut  mem_enIn
+	CU_reset
